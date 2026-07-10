@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: openstoryline-secret-scan
+        name: OpenStoryline secret scan
+        entry: python scripts/check_secrets.py
+        language: system
+        pass_filenames: true
+        types_or: [python, toml, yaml, json, markdown, shell]
+

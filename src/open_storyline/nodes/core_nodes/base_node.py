@@ -15,6 +15,8 @@ from open_storyline.storage.file import FileCompressor
 from open_storyline.utils.logging import get_logger
 from open_storyline.mcp.sampling_requester import LLMClient
 from open_storyline.mcp.hooks.node_interceptors import should_inline_media_as_base64
+from open_storyline.resilience.errors import build_error_record
+from open_storyline.resilience.fallbacks import build_fallback_payload, fallback_user_message, should_fallback_node
 
 logger = get_logger(__name__)
 
@@ -297,6 +299,8 @@ class BaseNode(ABC):
         return output_directory
 
     async def __call__(self, node_state: NodeState, **params) -> Dict[str, Any]:
+        inputs: Dict[str, Any] = {}
+        parsed_inputs: Dict[str, Any] = {}
         try:
             mode = params.get("mode", "auto")
 
@@ -323,10 +327,39 @@ class BaseNode(ABC):
             }
         except Exception as e:
             node_state.node_summary.add_error(str(e), artifact_id=node_state.artifact_id)
+            error_record = build_error_record(
+                node_id=self.meta.node_id,
+                artifact_id=node_state.artifact_id,
+                exc=e,
+            )
+
+            fallback_inputs = parsed_inputs or inputs or params
+            if should_fallback_node(self.meta.node_id):
+                fallback_payload = build_fallback_payload(self.meta.node_id, fallback_inputs)
+                if fallback_payload is not None:
+                    user_message = fallback_user_message(self.meta.node_id, params.get("lang"))
+                    node_state.node_summary.add_warning(
+                        f"{user_message} ({error_record['error_type']})",
+                        artifact_id=node_state.artifact_id,
+                    )
+                    packed_fallback = self.pack_outputs_to_client(node_state, fallback_payload)
+                    return {
+                        'artifact_id': node_state.artifact_id,
+                        'summary': node_state.node_summary.get_summary(node_state.artifact_id),
+                        'tool_excute_result': packed_fallback,
+                        'isError': False,
+                        'resilience': {
+                            'fallback': True,
+                            'user_message': user_message,
+                            'error': error_record,
+                        },
+                    }
+
             if self.server_cfg.developer.developer_mode:
                 traceback_info = ''.join(traceback.format_exception(e))
                 summary = {
-                    "error_info": f"[artifact_id {node_state.artifact_id}] \n {traceback_info}"
+                    "error_info": f"[artifact_id {node_state.artifact_id}] \n {traceback_info}",
+                    "error": error_record,
                 }
                 logger.error(traceback_info)
             else:
@@ -335,5 +368,6 @@ class BaseNode(ABC):
                 'artifact_id': node_state.artifact_id,
                 'summary': summary,
                 'tool_excute_result': {},
-                'isError': True
+                'isError': True,
+                'error': error_record,
             }

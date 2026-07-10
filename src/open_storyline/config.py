@@ -3,7 +3,6 @@ from __future__ import annotations
 import os
 from pathlib import Path
 from typing import Any, Optional, Literal, List
-import time
 
 try:
     import tomllib
@@ -56,6 +55,55 @@ def _resolve_paths_recursively(value: Any, info: ValidationInfo) -> Any:
         return {k: _resolve_paths_recursively(v, info) for k, v in value.items()}
 
     return value
+
+
+def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
+    out = dict(base)
+    for key, value in overlay.items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _deep_merge(out[key], value)
+        else:
+            out[key] = value
+    return out
+
+
+def _set_nested(data: dict[str, Any], path: list[str], value: str) -> None:
+    if value == "":
+        return
+    cur = data
+    for part in path[:-1]:
+        cur = cur.setdefault(part, {})
+    cur[path[-1]] = value
+
+
+def _apply_environment_overrides(data: dict[str, Any]) -> dict[str, Any]:
+    mapping = {
+        "OPENSTORYLINE_LLM_MODEL": ["llm", "model"],
+        "OPENSTORYLINE_LLM_BASE_URL": ["llm", "base_url"],
+        "OPENSTORYLINE_LLM_API_KEY": ["llm", "api_key"],
+        "OPENSTORYLINE_VLM_MODEL": ["vlm", "model"],
+        "OPENSTORYLINE_VLM_BASE_URL": ["vlm", "base_url"],
+        "OPENSTORYLINE_VLM_API_KEY": ["vlm", "api_key"],
+        "PEXELS_API_KEY": ["search_media", "pexels_api_key"],
+        "OPENSTORYLINE_PEXELS_API_KEY": ["search_media", "pexels_api_key"],
+        "TTS_302_BASE_URL": ["generate_voiceover", "providers", "302", "base_url"],
+        "TTS_302_API_KEY": ["generate_voiceover", "providers", "302", "api_key"],
+        "TTS_MINIMAX_BASE_URL": ["generate_voiceover", "providers", "minimax", "base_url"],
+        "TTS_MINIMAX_API_KEY": ["generate_voiceover", "providers", "minimax", "api_key"],
+        "TTS_BYTEDANCE_UID": ["generate_voiceover", "providers", "bytedance", "uid"],
+        "TTS_BYTEDANCE_APPID": ["generate_voiceover", "providers", "bytedance", "appid"],
+        "TTS_BYTEDANCE_ACCESS_TOKEN": ["generate_voiceover", "providers", "bytedance", "access_token"],
+        "AI_TRANSITION_MINIMAX_MODEL_NAME": ["generate_ai_transition", "providers", "minimax", "model_name"],
+        "AI_TRANSITION_MINIMAX_API_KEY": ["generate_ai_transition", "providers", "minimax", "api_key"],
+        "AI_TRANSITION_DASHSCOPE_MODEL_NAME": ["generate_ai_transition", "providers", "dashscope", "model_name"],
+        "AI_TRANSITION_DASHSCOPE_API_KEY": ["generate_ai_transition", "providers", "dashscope", "api_key"],
+    }
+    out = dict(data)
+    for env_name, path in mapping.items():
+        value = os.getenv(env_name)
+        if value not in (None, ""):
+            _set_nested(out, path, value)
+    return out
 
 
 class ConfigBaseModel(BaseModel):
@@ -264,6 +312,13 @@ class Settings(ConfigBaseModel):
 def load_settings(config_path: str | Path) -> Settings:
     p = Path(config_path).expanduser().resolve()
     data = tomllib.loads(p.read_text(encoding="utf-8"))
+    local_path = Path(os.getenv("OPENSTORYLINE_CONFIG_LOCAL", p.with_name("config.local.toml"))).expanduser()
+    if not local_path.is_absolute():
+        local_path = (p.parent / local_path).resolve(strict=False)
+    if local_path.exists():
+        local_data = tomllib.loads(local_path.read_text(encoding="utf-8"))
+        data = _deep_merge(data, local_data)
+    data = _apply_environment_overrides(data)
     return Settings.model_validate(data, context={"config_dir": p.parent})
 
 def default_config_path() -> str:

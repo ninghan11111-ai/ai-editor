@@ -11,17 +11,17 @@ outputs_dir = "./outputs"
 
 # ============= 模型配置 for user / Model Config for User =============
 [llm]
-model = ""
-base_url = ""
-api_key = "" 
+model = "deepseek-chat"
+base_url = "https://api.deepseek.com"
+api_key = ""
 timeout = 30.0 # 单位：秒
 temperature = 0.1
 max_retries = 2
 
 [vlm]
-model = ""
-base_url = ""
-api_key = "" 
+model = "glm-4v-flash"
+base_url = "https://open.bigmodel.cn/api/paas/v4/"
+api_key = ""
 timeout = 20.0 # 单位：秒
 temperature = 0.1
 max_retries = 2
@@ -101,18 +101,8 @@ api_key = ""
 
 # ============= AI 转场生成 / AI transition generation ===================
 [generate_ai_transition]
+providers = {}
 
-[generate_ai_transition.providers.dashscope] # 阿里通义万相 / Alibaba’s Tongyi Wanxiang (Wan) video model
-model_name = ""
-api_key = ""
-
-[generate_ai_transition.providers.minimax] # Minimax 海螺 / Hailuo
-model_name = ""
-api_key = ""
-
-
-# ============= BGM选择 / BGM Selection ====================
-# 主要是用于计算音乐特征的一些参数 / Mainly parameters for calculating music features
 [select_bgm]
 sample_rate = 22050
 hop_length = 2048   # 每次分析窗口向前跳多少个采样点，越小越精细（但更慢） / Hop length samples; smaller = more precise but slower

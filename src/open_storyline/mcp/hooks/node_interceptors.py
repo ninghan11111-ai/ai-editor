@@ -16,12 +16,46 @@ from open_storyline.nodes.node_manager import NodeManager
 
 from open_storyline.storage.file import FileCompressor
 from open_storyline.utils.logging import get_logger
+from open_storyline.compliance.license_report import generate_license_report
+from open_storyline.resilience.run_manifest import append_node_event, update_manifest_fields
 
 logger = get_logger(__name__)
 
 
 # Hosts that indicate Agent and MCP server are on the same machine (path-only, no base64). 0.0.0.0 for Docker.
 _LOCAL_CONNECT_HOSTS = frozenset({"127.0.0.1", "localhost", "::1", "0.0.0.0"})
+
+
+def _summarize_outputs(payload):
+    if not isinstance(payload, dict):
+        return {"type": type(payload).__name__}
+
+    summary = {}
+    for key, value in payload.items():
+        if isinstance(value, list):
+            summary[key] = {"count": len(value)}
+            paths = []
+            for item in value[:5]:
+                if isinstance(item, dict) and item.get("path"):
+                    paths.append(item.get("path"))
+                elif isinstance(item, str):
+                    paths.append(item)
+            if paths:
+                summary[key]["sample_paths"] = paths
+        elif isinstance(value, dict):
+            compact = {}
+            for k in ("output_path", "output_basename", "duration_s", "path", "bgm_id"):
+                if k in value:
+                    compact[k] = value[k]
+            if "tracks" in value and isinstance(value["tracks"], dict):
+                compact["tracks"] = {
+                    tk: len(tv) if isinstance(tv, list) else type(tv).__name__
+                    for tk, tv in value["tracks"].items()
+                }
+            summary[key] = compact or {"keys": sorted([str(k) for k in value.keys()])[:20]}
+        else:
+            summary[key] = value
+    return summary
 
 
 def should_inline_media_as_base64(server_cfg=None) -> bool:
@@ -353,21 +387,63 @@ class ToolInterceptor:
             session_id = client_ctx.session_id
 
             store = request.runtime.store
+            saved_meta = None
 
             if not tool_result['isError']:
                 if node_id == 'search_media':
-                    store.save_result(
+                    saved_meta = store.save_result(
                         session_id,
                         node_id,
                         tool_result,
                         Path(client_ctx.media_dir),
                     )
                 else:
-                    store.save_result(
+                    saved_meta = store.save_result(
                         session_id,
                         node_id,
                         tool_result,
                     )
+            manifest_path = append_node_event(
+                outputs_dir=client_ctx.outputs_dir,
+                session_id=session_id,
+                event={
+                    "node_id": node_id,
+                    "artifact_id": artifact_id,
+                    "tool_call_id": request.runtime.tool_call_id,
+                    "status": "failed" if tool_result.get("isError") else (
+                        "fallback" if (tool_result.get("resilience") or {}).get("fallback") else "success"
+                    ),
+                    "is_error": bool(tool_result.get("isError")),
+                    "fallback": bool((tool_result.get("resilience") or {}).get("fallback")),
+                    "user_message": (tool_result.get("resilience") or {}).get("user_message"),
+                    "error": tool_result.get("error") or (tool_result.get("resilience") or {}).get("error"),
+                    "summary": tool_result.get("summary"),
+                    "artifact_path": getattr(saved_meta, "path", None),
+                    "input_keys": sorted([str(k) for k in getattr(request, "args", {}).keys()]) if isinstance(getattr(request, "args", None), dict) else [],
+                    "outputs": _summarize_outputs(tool_result.get("tool_excute_result")),
+                },
+            )
+
+            if node_id == "render_video" and not tool_result.get("isError"):
+                try:
+                    license_json, license_md = generate_license_report(
+                        session_dir=Path(client_ctx.outputs_dir) / session_id,
+                        session_id=session_id,
+                        repo_root=Path.cwd(),
+                    )
+                    update_manifest_fields(
+                        outputs_dir=client_ctx.outputs_dir,
+                        session_id=session_id,
+                        fields={
+                            "license_report": {
+                                "json": str(license_json),
+                                "markdown": str(license_md),
+                            }
+                        },
+                    )
+                except Exception as e:
+                    logger.warning(f"Failed to generate license report: {e}")
+            logger.debug(f"Updated run manifest: {manifest_path}")
             tool_call_id = request.runtime.tool_call_id
             
             if node_id == 'read_node_history':

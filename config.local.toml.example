@@ -1,0 +1,37 @@
+# Copy this file to config.local.toml and fill local secrets there.
+# config.local.toml is ignored by Git and overrides config.toml at runtime.
+
+[llm]
+model = "deepseek-chat"
+base_url = "https://api.deepseek.com"
+api_key = ""
+
+[vlm]
+model = "glm-4v-flash"
+base_url = "https://open.bigmodel.cn/api/paas/v4"
+api_key = ""
+
+[search_media]
+pexels_api_key = ""
+
+[generate_voiceover.providers.302]
+base_url = "https://api.302.ai"
+api_key = ""
+
+[generate_voiceover.providers.bytedance]
+uid = ""
+appid = ""
+access_token = ""
+
+[generate_voiceover.providers.minimax]
+base_url = "https://api.minimax.chat"
+api_key = ""
+
+[generate_ai_transition.providers.dashscope]
+model_name = ""
+api_key = ""
+
+[generate_ai_transition.providers.minimax]
+model_name = ""
+api_key = ""
+
