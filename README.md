@@ -1,46 +1,3 @@
-<div align="center">
-  <a href="#gh-light-mode-only">
-    <img
-      src="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/web/static/brand_white.png"
-      alt="openstoryline"
-      width="70%"
-    />
-  </a>
-
-  <a href="#gh-dark-mode-only">
-    <img
-      src="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/web/static/brand_black.png"
-      alt="openstoryline"
-      width="70%"
-    />
-  </a>
-
-  <p>
-    <a href="./README_zh.md">🇨🇳 简体中文</a> | 
-    <a href="./README.md">🌏 English</a>
-  </p>
-  <p>
-    <a href="https://huggingface.co/FireRedTeam" target="_blank"><img alt="Hugging Face" src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-FireRedTeam-ffc107?color=ffc107&logoColor=white" style="display: inline-block;"/></a>
-    <a href="https://www.modelscope.cn/studios/FireRedTeam/FireRed-OpenStoryline" target="_blank">
-        <img alt="ModelScope Demo" src="https://img.shields.io/badge/ModelScope-Demo-4B6CFF?style=flat&logo=modelscope&logoColor=white" style="display: inline-block;"/></a>
-    <img src="https://img.shields.io/badge/python-≥3.11-blue" alt="Python">
-    <img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License">
-    <a href="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/docs/media/others/group_20260329.jpg"><img src="https://img.shields.io/badge/Xiaohongshu-Group-E9DBFC?style=flat&logo=xiaohongshu&logoColor=white" alt="xiaohongshu"></a>
-    <a href="https://hellogithub.com/repository/FireRedTeam/FireRed-OpenStoryline" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=fb457793a87e4bdab9c4f5ca26451a7f&claim_uid=4QpcNTrHEAg3O8n&theme=small" alt="Featured｜HelloGitHub" /></a>
-  </p>
-</div>
-
-<div align="center">
-
-[🤗 HuggingFace Demo](https://fireredteam-firered-openstoryline.hf.space/) • [🌐 Homepage](https://fireredteam.github.io/demos/firered_openstoryline/)
-
-</div>
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/9116767e-bcd9-417a-93d8-2db4d3d5df8e" width="70%" poster=""> </video>
-</div>
-
-
 **FireRed-OpenStoryline** 将复杂的视频创作转化为自然直观的对话体验。兼顾易用性和企业级可靠性，让视频创作对初学者和创意爱好者都变得简单友好。
 > FireRed，字面意思红色的火苗，取自“星星之火，可以燎原”。我们将这团火苗取名为 FireRed，就是希望将我们在真实场景中打磨出的 SOTA 能力，像火种一样撒向旷野，点燃全球开发者的想象力，共同改变这个 AI 的世界。
 
@@ -50,16 +7,6 @@
 - 🎵 **智能推荐音乐、配音与字体**：支持导入私有歌单，根据视频内容和情绪自动推荐背景音乐并智能卡点。只需描述"克制一点","偏情绪化","像纪录片旁白"等风格，系统即可匹配合适的配音与字体，保证整体风格协调统一。
 - 💬 **对话式精修**：支持快速删减、替换或重组片段；修改任意字幕文案；调整文字颜色、字体、描边、位置等视觉元素——所有操作均通过自然语言完成，即改即得。
 - ⚡ **剪辑技能沉淀**： 可一键保存为专属剪辑Skill，记录完整的剪辑逻辑。下次只需更换素材并选择对应Skill，即可快速复刻同款风格，实现高效批量生产。
-
-## NEWS
-- 🎬 **2026-04-02**：新增 **AI 转场生成** 功能，支持基于相邻片段的首尾画面与自然语言描述自动生成过渡镜头，让镜头衔接更自然、叙事更连贯。
-- 🚀 **2026-03-22**：新增**基于ASR的口播视频粗剪Skill**，支持自动去除口头禅、语气词和重复表达，并结合时间戳进行精准切分，提升口播类视频的剪辑效率与成片质量。
-- 🔥 **2026-03-12**：接入**OpenClaw**，新增 `openstoryline-install` 与 `openstoryline-use` 两个 OpenClaw Skills，分别覆盖安装首跑与实际使用流程；添加面向 **Claude Code** 的 Skill 使用说明，方便 **Claude Code** 依据仓库规范完成安装与调用。
-- **2026-2-10**：FireRed-OpenStoryline 正式开源。
-
-> <sub>
-> ⚠️ 注意：AI 转场依赖第三方 AIGC 视频生成服务，<b>成本相对较高</b>。受素材质量、提示词和模型波动影响，生成结果存在一定随机性，建议按需开启。
-> </sub>
 
 ## 🏗️ 架构
 
@@ -339,20 +286,6 @@ FireRed-OpenStoryline/
 - [ ] 添加图像/视频生成和编辑能力
 - [ ] 支持GPU渲染和高光裁切
 
-## 致谢
-
-本项目基于以下优秀的开源项目构建：
-
-
-### 核心依赖
-- [MoviePy](https://github.com/Zulko/moviepy) - 视频编辑库
-- [FFmpeg](https://ffmpeg.org/) - 多媒体框架
-- [LangChain](https://www.langchain.com/) - 提供预构建Agent的框架
-
 ## 📄 License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
-
-## ⭐ Star History
-
-<div align="center"> <p> <img width="800" src="https://api.star-history.com/svg?repos=FireRedTeam/FireRed-OpenStoryline&type=Date" alt="Star-history"> </p> </div>
