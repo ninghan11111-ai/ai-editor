@@ -144,15 +144,21 @@ echo ""
 echo "[3/4] 下载项目资源... | Downloading project resources..."
 
 if [ -f "download.sh" ]; then
-    print_info "执行资源下载脚本... | Running download script..."
-    chmod +x download.sh
-    ./download.sh
-    
-    if [ $? -eq 0 ]; then
-        print_success "资源下载完成 | Resources downloaded successfully"
+    if [ -z "${AI_EDITOR_ASSET_BASE_URL:-}" ]; then
+        print_warning "未设置 AI_EDITOR_ASSET_BASE_URL，跳过资源下载 | AI_EDITOR_ASSET_BASE_URL is not set, skipping resource download"
+        echo "如需下载模型等资源，请设置资源地址后执行: AI_EDITOR_ASSET_BASE_URL=https://your-asset-host.example/path ./download.sh"
+        echo "To download models, set the asset URL and run: AI_EDITOR_ASSET_BASE_URL=https://your-asset-host.example/path ./download.sh"
     else
-        print_error "资源下载失败 | Resource download failed"
-        exit 1
+        print_info "执行资源下载脚本... | Running download script..."
+        chmod +x download.sh
+        ./download.sh
+        
+        if [ $? -eq 0 ]; then
+            print_success "资源下载完成 | Resources downloaded successfully"
+        else
+            print_error "资源下载失败 | Resource download failed"
+            exit 1
+        fi
     fi
 else
     print_warning "未找到 download.sh | download.sh not found"

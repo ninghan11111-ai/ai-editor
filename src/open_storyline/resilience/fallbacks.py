@@ -23,55 +23,55 @@ FALLBACK_NODE_IDS = {
 
 FALLBACK_MESSAGES = {
     "search_media": {
-        "en": "Media search failed. OpenStoryline continued with uploaded or local media.",
+        "en": "Media search failed. AI Editor continued with uploaded or local media.",
         "zh": "素材搜索失败，已继续使用用户上传或本地素材。",
     },
     "understand_clips": {
-        "en": "Clip understanding failed. OpenStoryline used filenames, duration, and basic metadata for rough captions.",
+        "en": "Clip understanding failed. AI Editor used filenames, duration, and basic metadata for rough captions.",
         "zh": "画面理解失败，已使用文件名、时长和基础元信息生成粗略说明。",
     },
     "filter_clips": {
-        "en": "Clip filtering failed. OpenStoryline kept the available clips in their current order.",
+        "en": "Clip filtering failed. AI Editor kept the available clips in their current order.",
         "zh": "素材筛选失败，已保留可用素材并按当前顺序继续。",
     },
     "group_clips": {
-        "en": "Clip grouping failed. OpenStoryline placed available clips into a default group.",
+        "en": "Clip grouping failed. AI Editor placed available clips into a default group.",
         "zh": "素材分组失败，已将可用素材放入默认分组继续。",
     },
     "generate_script": {
-        "en": "Script generation failed. OpenStoryline generated simple fallback subtitles.",
+        "en": "Script generation failed. AI Editor generated simple fallback subtitles.",
         "zh": "脚本生成失败，已生成简单兜底字幕。",
     },
     "generate_voiceover": {
-        "en": "Voiceover generation failed. OpenStoryline continued in subtitle-only mode.",
+        "en": "Voiceover generation failed. AI Editor continued in subtitle-only mode.",
         "zh": "配音生成失败，已改为字幕-only 模式继续。",
     },
     "select_bgm": {
-        "en": "BGM selection failed. OpenStoryline continued without background music.",
+        "en": "BGM selection failed. AI Editor continued without background music.",
         "zh": "背景音乐选择失败，已改为无 BGM 继续。",
     },
     "generate_ai_transition": {
-        "en": "AI transition generation failed. OpenStoryline used normal cuts or default transitions.",
+        "en": "AI transition generation failed. AI Editor used normal cuts or default transitions.",
         "zh": "AI 转场生成失败，已改用普通硬切或默认转场。",
     },
     "elementrec_transition": {
-        "en": "Transition recommendation failed. OpenStoryline continued without recommended transitions.",
+        "en": "Transition recommendation failed. AI Editor continued without recommended transitions.",
         "zh": "转场推荐失败，已跳过推荐转场继续。",
     },
     "elementrec_text": {
-        "en": "Text style recommendation failed. OpenStoryline used the default font style.",
+        "en": "Text style recommendation failed. AI Editor used the default font style.",
         "zh": "文字样式推荐失败，已使用默认字体样式。",
     },
     "script_template_rec": {
-        "en": "Script template recommendation failed. OpenStoryline continued without a template.",
+        "en": "Script template recommendation failed. AI Editor continued without a template.",
         "zh": "脚本模板推荐失败，已跳过模板继续。",
     },
     "local_asr": {
-        "en": "Local ASR failed. OpenStoryline continued without speech recognition results.",
+        "en": "Local ASR failed. AI Editor continued without speech recognition results.",
         "zh": "本地语音识别失败，已跳过 ASR 结果继续。",
     },
     "speech_rough_cut": {
-        "en": "Speech rough cut failed. OpenStoryline continued with the original detected shots.",
+        "en": "Speech rough cut failed. AI Editor continued with the original detected shots.",
         "zh": "语音粗剪失败，已使用原始切分镜头继续。",
     },
 }
@@ -84,7 +84,7 @@ def should_fallback_node(node_id: str) -> bool:
 def fallback_user_message(node_id: str, lang: str | None = None) -> str:
     messages = FALLBACK_MESSAGES.get(node_id)
     if not messages:
-        return "Optional processing failed. OpenStoryline used a fallback result."
+        return "Optional processing failed. AI Editor used a fallback result."
     lang_key = "zh" if str(lang or "").lower().startswith("zh") else "en"
     return messages.get(lang_key) or messages["en"]
 

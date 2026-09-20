@@ -1,6 +1,6 @@
 # Resilience and Debugging
 
-OpenStoryline now records each node run and keeps optional failures from breaking the full render path.
+AI Editor now records each node run and keeps optional failures from breaking the full render path.
 
 ## Node fallback
 
@@ -32,7 +32,7 @@ Fallback keeps the render path alive, but it is not silent. Each fallback result
     {
       "node_id": "generate_voiceover",
       "artifact_id": "generate_voiceover_...",
-      "message": "Voiceover generation failed. OpenStoryline continued in subtitle-only mode.",
+      "message": "Voiceover generation failed. AI Editor continued in subtitle-only mode.",
       "error_type": "api_retryable",
       "recorded_at": "2026-07-10T..."
     }

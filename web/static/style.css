@@ -1967,8 +1967,13 @@ body.dev-mode:not(.devbar-collapsed) #devbarToggle svg{
 }
 
 .topbar > .brand{ align-items: center; gap: 10px; }
-.brand-img{ height: 48px; width: auto; display: block; }
-@media (max-width: 640px){ .brand-img{ height: 22px; } }
+.brand-text{
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text);
+  letter-spacing: 0;
+}
+@media (max-width: 640px){ .brand-text{ font-size: 18px; } }
 
 #uploadBtn svg{
   stroke-width: 2;

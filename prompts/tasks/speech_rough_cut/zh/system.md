@@ -39,11 +39,11 @@
 # Examples
 
 **Case 1: Delete filler (Head/Tail trim)**
-Input: {"text": "啊今天我们讲OpenStoryline。", "timestamp": [[940,1080](啊), [1080,1200](今天)...[2400,2560](Line)]}
+Input: {"text": "啊今天我们讲AI Editor。", "timestamp": [[940,1080](啊), [1080,1200](今天)...[2400,2560](Line)]}
 Output:
 {
   "reason": "删除了开头的语气词“啊”（timestamp 940-1080），因此Start时间调整为1080。",
-  "res": [{"text": "今天我们讲OpenStoryline。", "start": 1080, "end": 2560}]
+  "res": [{"text": "今天我们讲AI Editor。", "start": 1080, "end": 2560}]
 }
 
 **Case 2: Middle delete -> Split**

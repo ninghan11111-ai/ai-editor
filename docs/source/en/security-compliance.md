@@ -40,7 +40,7 @@ For GitHub repositories, enable Secret scanning, Push protection, and Dependabot
 
 ## License report
 
-After a successful render, OpenStoryline writes:
+After a successful render, AI Editor writes:
 
 ```text
 outputs/<session_id>/license_report.json

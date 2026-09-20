@@ -1,8 +1,8 @@
-# OpenStoryline 使用教程
+# AI Editor 使用教程
 ---
 ## 0. 环境安装
 
-参见[README](https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/main/README_zh.md)部分
+参见[README](https://github.com/ninghan11111-ai/ai-editor/blob/main/README.md)部分
 
 ## 1. 基础使用教程
 
@@ -29,7 +29,7 @@
 
 ### 1.2. 编辑
 
-OpenStoryline 支持在任意阶段进行意图干预与局部重做：当某一步骤完成后，你可以直接用一句话提出修改要求，Agent会定位到需要重跑的步骤，而无需从流程起点重新开始。例如
+AI Editor 支持在任意阶段进行意图干预与局部重做：当某一步骤完成后，你可以直接用一句话提出修改要求，Agent会定位到需要重跑的步骤，而无需从流程起点重新开始。例如
 - 帮我去掉那个拍摄天空的片段。
 - 换一个欢快一点的背景音乐。
 - 字幕换成更符合夕阳主题的颜色  

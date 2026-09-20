@@ -1,10 +1,10 @@
-# OpenStoryline User Guide
+# AI Editor User Guide
 
 ---
 
 ## 0. Environment Setup
 
-See the [README](https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/main/README.md) section.
+See the [README](https://github.com/ninghan11111-ai/ai-editor/blob/main/README.md) section.
 
 ## 1. Basic Usage
 
@@ -35,7 +35,7 @@ If you just want to explore it first, you can also use it like a normal chat mod
 
 ### 1.2 Editing
 
-OpenStoryline supports **intent intervention and partial redo at any stage**. After a step completes, you can simply describe what you want to change in one sentence. The agent will locate the step that needs to be rerun, without restarting from the beginning. For example:
+AI Editor supports **intent intervention and partial redo at any stage**. After a step completes, you can simply describe what you want to change in one sentence. The agent will locate the step that needs to be rerun, without restarting from the beginning. For example:
 
 * Remove the clip where the camera is filming the sky.
 * Switch to a more upbeat background music.

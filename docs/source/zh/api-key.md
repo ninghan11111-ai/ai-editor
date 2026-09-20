@@ -68,17 +68,7 @@ Qwen3-Omni同样可以在阿里云百炼平台进行申请，具体参数如下�
 ## 三、Pexels 图像和视频下载API密钥配置
 
 1. 打开Pexels网站，注册账号，申请API https://www.pexels.com/zh-cn/api/key/ 
-<div align="center">
-  <img src="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/docs/resource/pexels_api.png" alt="pexels下载图像和视频API申请" width="70%">
-  <p><em>图1: Pexels API申请页面</em></p>
-</div>
-
 2. 网页使用：找到Pexels配置，选择使用自定义key，将API key填入表单中。
-<div align="center">
-  <img src="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/docs/resource/use_pexels_api_zh.png" alt="pexels API填写" width="70%">
-  <p><em>图2: Pexels API 使用</em></p>
-</div>
-
 3. 本地部署的项目：我们将API填写在config.toml中的pexels_api_key字段中。作为项目的默认配置
 
 ## 四、TTS (文本转语音) 配置
@@ -101,11 +91,6 @@ Qwen3-Omni同样可以在阿里云百炼平台进行申请，具体参数如下�
 2. 步骤2：获取认证信息
    查看账号基本信息页面：
    - 访问：https://console.volcengine.com/user/basics/
-
-<div align="center">
-  <img src="https://image-url-2-feature-1251524319.cos.ap-shanghai.myqcloud.com/openstoryline/docs/resource/use_bytedance_tts_zh.png" alt="Bytedance TTS API填写" width="70%">
-  <p><em>图3: Bytedance TTS API 使用</em></p>
-</div>
 
    需要获取以下信息：
    - **UID**: 主账号信息中的 ID

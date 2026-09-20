@@ -1,16 +1,16 @@
 // /static/app.js
 const $ = (sel) => document.querySelector(sel);
-const SIDEBAR_COLLAPSED_KEY = "openstoryline_sidebar_collapsed";
-const DEVBAR_COLLAPSED_KEY = "openstoryline_devbar_collapsed";
+const SIDEBAR_COLLAPSED_KEY = "ai-editor_sidebar_collapsed";
+const DEVBAR_COLLAPSED_KEY = "ai-editor_devbar_collapsed";
 const AUDIO_PREVIEW_MAX = 3;
 const CUSTOM_MODEL_KEY = "__custom__";
-const SESSION_ID_KEY = "openstoryline_session_id";
-const SESSION_LIST_KEY = "openstoryline_session_list_v1";
+const SESSION_ID_KEY = "ai-editor_session_id";
+const SESSION_LIST_KEY = "ai-editor_session_list_v1";
 
 // =========================================================
 // i18n (zh/en) + lang persistence
 // =========================================================
-const __OS_LANG_STORAGE_KEY = "openstoryline_lang_v1";
+const __OS_LANG_STORAGE_KEY = "ai-editor_lang_v1";
 
 const QUICK_PROMPTS = [
   { zh: "详细介绍一下你能做什么", en: "Please describe in detail what you can do." },
@@ -94,7 +94,7 @@ const __OS_I18N = {
     "sidebar.help.cta": "点击查看配置教程",
     "sidebar.help.llm": "LLM 主要用于对话，在工具内部也被用来生成文案/分组/选择BGM等。",
     "sidebar.help.vlm": "VLM 用于素材理解（图像/视频理解）。自定义时请确认模型支持多模态输入。",
-    "sidebar.help.pexels": "Pexels 用于搜索网络素材。免责声明：OpenStoryline 搜索的网络素材均来自Pexels，通过Pexels下载的素材仅用于体验Open-Storyline剪辑效果，不允许再分发或出售。我们只提供工具，所有通过本工具下载和使用的素材（如 Pexels 图像）都由用户自行通过 API 获取，我们不对用户生成的视频内容、素材的合法性或因使用本工具导致的任何版权/肖像权纠纷承担责任。使用时请遵循 Pexels 的许可协议。",
+    "sidebar.help.pexels": "Pexels 用于搜索网络素材。免责声明：AI Editor 搜索的网络素材均来自Pexels，通过Pexels下载的素材仅用于体验AI Editor剪辑效果，不允许再分发或出售。我们只提供工具，所有通过本工具下载和使用的素材（如 Pexels 图像）都由用户自行通过 API 获取，我们不对用户生成的视频内容、素材的合法性或因使用本工具导致的任何版权/肖像权纠纷承担责任。使用时请遵循 Pexels 的许可协议。",
     "sidebar.help.tts": "用于从文案生成配音。",
     "sidebar.help.ai_transition": "用于为片段之间生成 AI 转场。",
     "sidebar.help.pexels_home_link": "点击进入 Pexels 官方网站",
@@ -218,7 +218,7 @@ const __OS_I18N = {
     "sidebar.help.cta": "Click to view the configuration guide",
     "sidebar.help.llm": "LLM is used for chat/copywriting.",
     "sidebar.help.vlm": "VLM is used for media understanding (image/video).",
-    "sidebar.help.pexels": "Pexels is used for media search. Disclaimer: The online content searched by OpenStoryline is all from Pexels. Footage downloaded via Pexels is for the sole purpose of experiencing Open-Storyline editing effects and may not be redistributed or sold. We only provide the tool. All materials downloaded and used through this tool (such as Pexels images) are obtained by the user through the API. We are not responsible for the legality of user-generated video content or materials, or for any copyright/portrait rights disputes arising from the use of this tool. Please comply with the Pexels license agreement when using it.",
+    "sidebar.help.pexels": "Pexels is used for media search. Disclaimer: The online content searched by AI Editor is all from Pexels. Footage downloaded via Pexels is for the sole purpose of experiencing AI Editor editing effects and may not be redistributed or sold. We only provide the tool. All materials downloaded and used through this tool (such as Pexels images) are obtained by the user through the API. We are not responsible for the legality of user-generated video content or materials, or for any copyright/portrait rights disputes arising from the use of this tool. Please comply with the Pexels license agreement when using it.",
     "sidebar.help.tts": "TTS is used to generate voiceover from text.",
     "sidebar.help.ai_transition": "Used to generate AI transitions between clips.",
     "sidebar.help.pexels_home_link": "Visit the official Pexels website",
@@ -4338,7 +4338,7 @@ new App().bootstrap();
    ========================================================= */
 
 const __OS_PERSIST_STORAGE = window.sessionStorage; // <- 改成 localStorage 即可“关浏览器也还在”
-const __OS_PERSIST_KEY = "openstoryline_user_config_v1";
+const __OS_PERSIST_KEY = "ai-editor_user_config_v1";
 
 function __osSafeParseJson(s, fallback) {
   try {

@@ -1,2 +1,2 @@
-"""Runtime resilience helpers for OpenStoryline."""
+"""Runtime resilience helpers for AI Editor."""
 

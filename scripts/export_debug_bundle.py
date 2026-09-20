@@ -24,7 +24,7 @@ DEFAULT_SKIP_DIRS = {".git", ".venv", "__pycache__", "media"}
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Export a masked OpenStoryline debug bundle.")
+    parser = argparse.ArgumentParser(description="Export a masked AI Editor debug bundle.")
     parser.add_argument("--session", required=True, help="Session id under outputs/")
     parser.add_argument("--outputs-dir", default=None, help="Override outputs directory")
     parser.add_argument("--cache-dir", default=None, help="Optional .server_cache directory")
@@ -43,7 +43,7 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     zip_path = out_dir / f"debug_bundle_{args.session}.zip"
 
-    with tempfile.TemporaryDirectory(prefix="openstoryline_debug_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="ai-editor_debug_") as tmp:
         staging = Path(tmp) / f"debug_bundle_{args.session}"
         staging.mkdir(parents=True)
 
@@ -59,7 +59,7 @@ def main() -> int:
             encoding="utf-8",
         )
         (staging / "README.txt").write_text(
-            "OpenStoryline debug bundle. Secrets are masked. Media files are excluded unless --include-media was used.\n",
+            "AI Editor debug bundle. Secrets are masked. Media files are excluded unless --include-media was used.\n",
             encoding="utf-8",
         )
 
