@@ -347,6 +347,18 @@ def make_sampling_callback(
             model = vlm if use_multimodal else llm
             if model is None:
                 model = vlm or llm
+            model_name = getattr(model, "model", None) or getattr(model, "model_name", None) or "unknown"
+
+            # GLM-4V-Flash rejects requests containing more than one image.
+            # Keep multi-frame sampling for other VLMs, but use one representative
+            # frame per clip for this provider/model combination.
+            effective_min_frames = min_frames
+            effective_max_frames = max_frames
+            effective_global_max_images = global_max_images
+            if "glm-4v-flash" in str(model_name).lower():
+                effective_min_frames = 1
+                effective_max_frames = 1
+                effective_global_max_images = 1
 
             # 5. Build media blocks (including video segment sampling) - run in thread to avoid blocking event loop
             media_blocks: List[Dict[str, Any]] = []
@@ -356,10 +368,10 @@ def make_sampling_callback(
                     media_inputs,
                     resize_edge,
                     jpeg_quality,
-                    min_frames,
-                    max_frames,
+                    effective_min_frames,
+                    effective_max_frames,
                     frames_per_sec,
-                    global_max_images,
+                    effective_global_max_images,
                 )
 
             # 6. Attach media to "last user message"
@@ -394,7 +406,6 @@ def make_sampling_callback(
 
             # 7. Invoke selected model
             bound = model
-            model_name = getattr(model, "model", None) or getattr(model, "model_name", None) or "unknown"
             try:
                 bound = bound.bind(temperature=temperature, max_tokens=max_tokens, top_p=top_p)
             except Exception:
