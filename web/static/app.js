@@ -3342,25 +3342,58 @@ class App {
     const vlmModels = (snapshot && Array.isArray(snapshot.vlm_models)) ? snapshot.vlm_models : [];
     const vlmCurrent = (snapshot && typeof snapshot.vlm_model_key === "string") ? snapshot.vlm_model_key : "";
 
-    // 确保至少有一个选项
+    const hasSavedCustomModel = (kind) => {
+      let cfg = {};
+      try {
+        const raw = window.localStorage.getItem("ai-editor_user_config_v1")
+          || window.sessionStorage.getItem("ai-editor_user_config_v1")
+          || "{}";
+        const parsed = JSON.parse(raw);
+        cfg = (parsed && typeof parsed === "object") ? parsed : {};
+      } catch {}
+      const getByPath = (obj, path) => {
+        const parts = String(path).split(".").filter(Boolean);
+        let cur = obj;
+        for (const p of parts) {
+          if (!cur || typeof cur !== "object") return undefined;
+          cur = cur[p];
+        }
+        return cur;
+      };
+      const base = `sidebar.custom.${kind}`;
+      const has = (key) => {
+        const v = getByPath(cfg, `${base}.${key}`);
+        return String(v ?? "").trim().length > 0;
+      };
+      return has("model") || has("base_url") || has("api_key");
+    };
+
+    const ensureCustomOption = (list) => {
+      const out = list.slice();
+      if (!out.includes(CUSTOM_MODEL_KEY)) out.push(CUSTOM_MODEL_KEY);
+      return out;
+    };
+
+    // 确保至少有一个选项，并始终保留“使用自定义模型”
     const llmList = (llmModels && llmModels.length) ? llmModels.slice() : (llmCurrent ? [llmCurrent] : []);
     const vlmList = (vlmModels && vlmModels.length) ? vlmModels.slice() : (vlmCurrent ? [vlmCurrent] : []);
 
-    this.llmModels = llmList;
-    this.vlmModels = vlmList;
+    this.llmModels = ensureCustomOption(llmList);
+    this.vlmModels = ensureCustomOption(vlmList);
 
     // render LLM select
     if (this.llmSelect) {
       this.llmSelect.innerHTML = "";
-      for (const m of llmList) {
+      for (const m of this.llmModels) {
         const opt = document.createElement("option");
         opt.value = m;
         opt.textContent = (m === CUSTOM_MODEL_KEY) ? __t("sidebar.use_custom_model") : m;
         this.llmSelect.appendChild(opt);
       }
       let selected = "";
-      if (llmCurrent && llmList.includes(llmCurrent)) selected = llmCurrent;
-      else if (llmList.length) selected = llmList[0];
+      if (hasSavedCustomModel("llm")) selected = CUSTOM_MODEL_KEY;
+      else if (llmCurrent && this.llmModels.includes(llmCurrent)) selected = llmCurrent;
+      else if (this.llmModels.length) selected = this.llmModels[0];
       this.llmModel = selected || null;
       if (this.llmModel) this.llmSelect.value = this.llmModel;
     }
@@ -3368,15 +3401,16 @@ class App {
     // render VLM select
     if (this.vlmSelect) {
       this.vlmSelect.innerHTML = "";
-      for (const m of vlmList) {
+      for (const m of this.vlmModels) {
         const opt = document.createElement("option");
         opt.value = m;
         opt.textContent = (m === CUSTOM_MODEL_KEY) ? __t("sidebar.use_custom_model") : m;
         this.vlmSelect.appendChild(opt);
       }
       let selected = "";
-      if (vlmCurrent && vlmList.includes(vlmCurrent)) selected = vlmCurrent;
-      else if (vlmList.length) selected = vlmList[0];
+      if (hasSavedCustomModel("vlm")) selected = CUSTOM_MODEL_KEY;
+      else if (vlmCurrent && this.vlmModels.includes(vlmCurrent)) selected = vlmCurrent;
+      else if (this.vlmModels.length) selected = this.vlmModels[0];
       this.vlmModel = selected || null;
       if (this.vlmModel) this.vlmSelect.value = this.vlmModel;
     }
@@ -4337,7 +4371,8 @@ new App().bootstrap();
    Persist sidebar config across refresh (keys, base_url, etc.)
    ========================================================= */
 
-const __OS_PERSIST_STORAGE = window.sessionStorage; // <- 改成 localStorage 即可“关浏览器也还在”
+const __OS_PERSIST_STORAGE = window.localStorage;
+const __OS_LEGACY_PERSIST_STORAGE = window.sessionStorage;
 const __OS_PERSIST_KEY = "ai-editor_user_config_v1";
 
 function __osSafeParseJson(s, fallback) {
@@ -4350,6 +4385,12 @@ function __osSafeParseJson(s, fallback) {
 }
 
 function __osLoadConfig() {
+  if (!__OS_PERSIST_STORAGE.getItem(__OS_PERSIST_KEY)) {
+    const legacy = __OS_LEGACY_PERSIST_STORAGE.getItem(__OS_PERSIST_KEY);
+    if (legacy) {
+      try { __OS_PERSIST_STORAGE.setItem(__OS_PERSIST_KEY, legacy); } catch {}
+    }
+  }
   return __osSafeParseJson(__OS_PERSIST_STORAGE.getItem(__OS_PERSIST_KEY), {});
 }
 
@@ -4488,6 +4529,7 @@ function __osBindPersistedFields(root = document) {
     getConfig: () => (cfg = __osLoadConfig()),
     clear: () => {
       __OS_PERSIST_STORAGE.removeItem(__OS_PERSIST_KEY);
+      __OS_LEGACY_PERSIST_STORAGE.removeItem(__OS_PERSIST_KEY);
       cfg = {};
     },
     saveNow: () => __osSaveConfig(cfg),
