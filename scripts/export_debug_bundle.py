@@ -16,8 +16,8 @@ SRC = ROOT / "src"
 if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
-from open_storyline.config import default_config_path, load_settings  # noqa: E402
-from open_storyline.resilience.run_manifest import mask_secrets  # noqa: E402
+from ai_editor.config import default_config_path, load_settings  # noqa: E402
+from ai_editor.resilience.run_manifest import mask_secrets  # noqa: E402
 
 
 DEFAULT_SKIP_DIRS = {".git", ".venv", "__pycache__", "media"}

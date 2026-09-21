@@ -5,8 +5,8 @@ import base64
 import hashlib
 import json
 from openai import OpenAI
-from src.open_storyline.utils.prompts import get_prompt
-from src.open_storyline.utils.parse_json import parse_json_dict
+from src.ai_editor.utils.prompts import get_prompt
+from src.ai_editor.utils.parse_json import parse_json_dict
 from tqdm import tqdm  # progress bar
 
 # -------------------------------

@@ -41,7 +41,7 @@ json_response = true       # 建议用 True / Recommended: True
 stateless_http = false     # 强烈建议用 False / Strongly recommended: False
 timeout = 600
 available_node_pkgs = [
-    "open_storyline.nodes.core_nodes"
+    "ai_editor.nodes.core_nodes"
 ]
 available_nodes = [
     "LoadMediaNode", "SearchMediaNode", "SplitShotsNode", "LocalASRNode", "SpeechRoughCutNode", "GenerateAITransitionNode", 

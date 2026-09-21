@@ -121,12 +121,12 @@ sh build_env.sh
 
 #### MacOS or Linux
   ```bash
-  PYTHONPATH=src python -m open_storyline.mcp.server
+  PYTHONPATH=src python -m ai_editor.mcp.server
   ```
 
 #### Windows
   ```
-  $env:PYTHONPATH="src"; python -m open_storyline.mcp.server
+  $env:PYTHONPATH="src"; python -m ai_editor.mcp.server
   ```
 
 
@@ -147,7 +147,7 @@ sh build_env.sh
 ## 📁 项目结构
 ```
 AI Editor/
-├── 🎯 src/open_storyline/           核心应用
+├── 🎯 src/ai_editor/           核心应用
 │   ├── mcp/                         🔌 模型上下文协议
 │   ├── nodes/                       🎬 视频处理节点
 │   ├── skills/                      🛠️ Agent 技能库
