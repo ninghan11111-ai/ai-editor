@@ -98,6 +98,12 @@ class GenerateAITransitionNode(BaseNode):
     DEFAULT_TRANSITION_DURATION = 5
     SECOND_TO_MILLISECOND = 1000
     MAX_ASPECT_RATIO_FACTOR = 1.1
+    PROVIDER_META_KEYS = {"label", "name", "display_name"}
+    PROVIDER_REQUIRED_KEYS = {
+        "minimax": ["api_key", "model_name"],
+        "dashscope": ["api_key", "model_name"],
+        "aliyun": ["api_key", "model_name"],
+    }
     def _raise_if_cancelled(self, node_state: NodeState) -> None:
         if is_ai_transition_cancelled(self.server_cache_dir, node_state.session_id):
             raise RuntimeError("generate_ai_transition cancelled by user")
@@ -112,6 +118,11 @@ class GenerateAITransitionNode(BaseNode):
         provider = runtime_cfg["provider"]
         api_key = runtime_cfg["api_key"]
         model_name = runtime_cfg["model_name"]
+        provider_config = {
+            key: value
+            for key, value in runtime_cfg.items()
+            if key not in {"provider", "api_key", "model_name"}
+        }
         transition_duration = inputs.get("duration")
         resolution = inputs.get("resolution")
         user_request = inputs.get("user_request", "以一镜到底的方式拍摄，场景丝滑过渡")
@@ -136,6 +147,7 @@ class GenerateAITransitionNode(BaseNode):
             "provider": provider,
             "api_key": api_key,
             "model_name": model_name,
+            "provider_config": provider_config,
             "transition_duration": transition_duration,
             "resolution": resolution,
             "user_request": user_request,
@@ -220,16 +232,14 @@ class GenerateAITransitionNode(BaseNode):
         provider = str(inputs.get("provider") or "").strip().lower() or "minimax"
         config_cfg = self._get_provider_cfg(provider)
 
-        required_keys = list(config_cfg.keys())
+        runtime_keys = [key for key in config_cfg if key not in self.PROVIDER_META_KEYS]
+        frontend_cfg = {key: inputs.get(key) for key in runtime_keys}
+        final_cfg = dict(config_cfg)
+        final_cfg.update({key: value for key, value in frontend_cfg.items() if value not in (None, "")})
+        required_keys = self.PROVIDER_REQUIRED_KEYS.get(provider, runtime_keys)
 
-        frontend_cfg = {k: inputs.get(k) for k in required_keys}
-
-        if self._is_complete_provider_cfg(frontend_cfg, required_keys):
-            final_cfg = frontend_cfg
-        elif self._is_complete_provider_cfg(config_cfg, required_keys):
-            final_cfg = config_cfg
-        else:
-            missing = [k for k in required_keys if config_cfg.get(k) in (None, "")]
+        if not self._is_complete_provider_cfg(final_cfg, required_keys):
+            missing = [key for key in required_keys if final_cfg.get(key) in (None, "")]
             raise ValueError(
                 f"provider={provider} missing required fields: {missing}. "
                 f"Please configure in sidebar or config.toml."
@@ -248,6 +258,7 @@ class GenerateAITransitionNode(BaseNode):
         provider: str,
         api_key: str,
         model_name: str,
+        provider_config: Dict[str, Any],
         transition_duration: Optional[int],
         resolution: Optional[str],
         transition_index: int,
@@ -314,6 +325,7 @@ class GenerateAITransitionNode(BaseNode):
             resolution=resolution,
             output_dir=node_cache_dir,
             cancel_checker=lambda: is_ai_transition_cancelled(self.server_cache_dir, node_state.session_id),
+            provider_config=provider_config,
         )
 
         with VideoFileClip(str(gen_video_path)) as generated_clip:
@@ -548,11 +560,15 @@ class GenerateAITransitionNode(BaseNode):
         duration=None,
         resolution=None,
         cancel_checker=None,
+        provider_config: Optional[Dict[str, Any]] = None,
     ) -> Tuple[str, Dict[str, Any], int]:
+        provider_config = provider_config or {}
         client = VisionClientFactory.create(
             provider=provider,
             api_key=api_key,
             cancel_checker=cancel_checker,
+            base_url=provider_config.get("base_url"),
+            timeout=provider_config.get("timeout"),
         )
         effective_duration = int(duration) if duration is not None else int(client.duration)
         

@@ -10,12 +10,14 @@ from typing import Optional, Any, Dict, Tuple
 
 
 class BaseVisionClient(ABC):
+    BASE_URL = ""
     DEFAULT_DURATION = 5
     DEFAULT_RESOLUTION = "720P"
 
-    def __init__(self, api_key: str, timeout: int = 600, cancel_checker=None):
+    def __init__(self, api_key: str, timeout: int = 600, cancel_checker=None, base_url: str | None = None):
         self.api_key = api_key
         self.timeout = timeout
+        self.base_url = str(base_url or self.BASE_URL).strip().rstrip("/")
         self.duration = self.DEFAULT_DURATION
         self.resolution = self.DEFAULT_RESOLUTION
         self.cancel_checker = cancel_checker
@@ -197,7 +199,7 @@ class MiniMaxVisionClient(BaseVisionClient):
         return self.MODEL_DEFAULT_RESOLUTIONS.get(model, self.DEFAULT_RESOLUTION)
 
     def _get_endpoint(self, task_type: str) -> str:
-        return f"{self.BASE_URL}/video_generation"
+        return f"{self.base_url}/video_generation"
 
     def _build_payload(self, prompt, model, first_frame, last_frame, resolution, duration, prompt_optimizer, **kwargs):
         payload = {
@@ -216,7 +218,7 @@ class MiniMaxVisionClient(BaseVisionClient):
         return response_json.get("task_id")
 
     def check_status(self, task_id: str) -> Tuple[Optional[str], Optional[Dict[str, Any]]]:
-        url = f"{self.BASE_URL}/query/video_generation?task_id={task_id}"
+        url = f"{self.base_url}/query/video_generation?task_id={task_id}"
         headers = {"Authorization": f"Bearer {self.api_key}"}
         self._raise_if_cancelled()
         try:
@@ -230,7 +232,7 @@ class MiniMaxVisionClient(BaseVisionClient):
             file_id = data.get("file_id")
             self._raise_if_cancelled()
             try:
-                retrieve_resp = requests.get(f"{self.BASE_URL}/files/retrieve?file_id={file_id}", headers=headers)
+                retrieve_resp = requests.get(f"{self.base_url}/files/retrieve?file_id={file_id}", headers=headers)
             except requests.RequestException as e:
                 raise RuntimeError(f"{self.__class__.__name__} retrieve generated file request failed: {e}") from e
             self._raise_for_status_with_details(retrieve_resp, "retrieve generated file")
@@ -260,31 +262,36 @@ class DashScopeVisionClient(BaseVisionClient):
         return headers
 
     def _get_endpoint(self, task_type: str) -> str:
-        return f"{self.BASE_URL}/services/aigc/image2video/video-synthesis"
+        return f"{self.base_url}/services/aigc/image2video/video-synthesis"
 
     def _build_payload(self, prompt, model, first_frame, last_frame, resolution, duration, prompt_optimizer, **kwargs):
+        input_payload = {
+            "prompt": prompt,
+            "first_frame_url": first_frame,
+            "last_frame_url": last_frame,
+        }
+        parameters = {
+            "resolution": resolution,
+            "duration": duration,
+            "prompt_extend": prompt_optimizer,
+            "watermark": kwargs.get("watermark", False),
+        }
+        if kwargs.get("negative_prompt") not in (None, ""):
+            input_payload["negative_prompt"] = kwargs["negative_prompt"]
+        if kwargs.get("seed") not in (None, ""):
+            parameters["seed"] = kwargs["seed"]
+
         return {
             "model": model,
-            "input": {
-                "prompt": prompt,
-                "first_frame_url": first_frame,
-                "last_frame_url": last_frame,
-                "negative_prompt": kwargs.get("negative_prompt")
-            },
-            "parameters": {
-                "resolution": resolution,
-                "duration": duration,
-                "prompt_extend": prompt_optimizer,
-                "watermark": kwargs.get("watermark", False),
-                "seed": kwargs.get("seed")
-            }
+            "input": input_payload,
+            "parameters": parameters,
         }
 
     def _extract_task_id(self, response_json: Dict[str, Any]) -> str:
         return response_json.get("output", {}).get("task_id")
 
     def check_status(self, task_id: str) -> Tuple[Optional[str], Optional[Dict[str, Any]]]:
-        url = f"{self.BASE_URL}/tasks/{task_id}"
+        url = f"{self.base_url}/tasks/{task_id}"
         headers = {"Authorization": f"Bearer {self.api_key}"}
         self._raise_if_cancelled()
         try:
@@ -303,12 +310,13 @@ class DashScopeVisionClient(BaseVisionClient):
 
 class VisionClientFactory:
     @staticmethod
-    def create(provider: str, api_key: str, cancel_checker=None) -> BaseVisionClient:
+    def create(provider: str, api_key: str, cancel_checker=None, base_url: str | None = None, timeout: int | str | None = None) -> BaseVisionClient:
         p = provider.lower()
+        timeout_value = int(timeout) if timeout not in (None, "") else 600
         if p == "minimax":
-            return MiniMaxVisionClient(api_key=api_key, cancel_checker=cancel_checker)
+            return MiniMaxVisionClient(api_key=api_key, cancel_checker=cancel_checker, base_url=base_url, timeout=timeout_value)
         elif p in ["dashscope", "aliyun"]:
-            return DashScopeVisionClient(api_key=api_key, cancel_checker=cancel_checker)
+            return DashScopeVisionClient(api_key=api_key, cancel_checker=cancel_checker, base_url=base_url, timeout=timeout_value)
         raise ValueError(f"Unsupported provider: {provider}")
 
 
