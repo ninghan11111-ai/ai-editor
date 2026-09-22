@@ -101,7 +101,17 @@ api_key = ""
 
 # ============= AI 转场生成 / AI transition generation ===================
 [generate_ai_transition]
-providers = {}
+
+[generate_ai_transition.providers.seedance]
+base_url = "https://ark.cn-beijing.volces.com/api/v3"
+model_name = "doubao-seedance-2-0-260128"
+api_key = ""
+
+[generate_ai_transition.providers.dashscope]
+label = "阿里云万相 Wan 2.2 首尾帧"
+base_url = "https://dashscope.aliyuncs.com/api/v1"
+model_name = "wan2.2-kf2v-flash"
+api_key = ""
 
 [select_bgm]
 sample_rate = 22050
